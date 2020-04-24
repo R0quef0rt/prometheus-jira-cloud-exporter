@@ -16,71 +16,48 @@ class Issues:
             block_size = 100
             block_num = 0
             count = 0
+            global promLabels
+            promLabels = []
             result = jira.search_issues(jql, startAt=block_num*block_size, maxResults=block_size,
                                         fields="project, summary, components, labels, status, issuetype, resolution, created, resolutiondate, reporter, assignee, status")
-
-            # Set up the variables that store Prometheus labels
-            global projects
-            projects = []
-            global assignees
-            assignees = []
-            global components
-            components = []
-            global labels
-            labels = []
-            global issueTypes
-            issueTypes = []
-            global statuses
-            statuses = []
-            global resolutions
-            resolutions = []
-            global reporters
-            reporters = []
 
             while bool(result):
 
                 for issue in result:
                     count += 1
-                    projects.append(str(issue.fields.project))
-                    assignees.append(str(issue.fields.assignee))
-                    issueTypes.append(str(issue.fields.issuetype))
-                    statuses.append(str(issue.fields.status))
-                    resolutions.append(str(issue.fields.resolution))
-                    reporters.append(str(issue.fields.reporter))
+                    project = str(issue.fields.project)
+                    assignee = str(issue.fields.assignee)
+                    issueType = str(issue.fields.assignee)
+                    status = str(issue.fields.status)
+                    resolution = str(issue.fields.resolution)
+                    reporter = str(issue.fields.reporter)
+                    components = issue.fields.components
+                    labels = issue.fields.labels
 
-                    for component in issue.fields.components:
-                        components.append(str(component))
-                    
-                    for label in issue.fields.labels:
-                        labels.append(str(label))
+                    # Construct the PromQL query
+                    promLabel = f"project='{project}', assignee='{assignee}', issueType='{issueType}', status='{status}', resolution='{resolution}', reporter='{reporter}'"
+
+                    if components:
+                        for component in components:
+                            promLabel += f", component='{component}'"
+
+                    if labels:
+                        for label in labels:
+                            promLabel += f", label='{label}'"
+                
+                    promLabels.append(promLabel)
 
                 block_num += 1
                 time.sleep(5)
                 result = jira.search_issues(jql, startAt=block_num*block_size, maxResults=block_size,
                                         fields="project, summary, components, labels, status, issuetype, resolution, created, resolutiondate, reporter, assignee, status")
 
-            # Convert list to a set, then back to a list, in order to obtain unique values                            
-            projects = list(set(projects))
-            assignees = list(set(assignees))
-            components = list(set(components))
-            labels = list(set(labels))
-            issueTypes = list(set(issueTypes))
-            statuses = list(set(statuses))
-            resolutions = list(set(resolutions))
-            reporters = list(set(reporters))
-
             jira.close()
+
+            return promLabels
 
         except (AttributeError):
 
             jira.close()
 
 Issues.search()
-print(projects)
-print(assignees)
-print(components)
-print(labels)
-print(issueTypes)
-print(statuses)
-print(resolutions)
-print(reporters)
