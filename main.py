@@ -22,6 +22,6 @@ if __name__ == '__main__':
     # Generate some requests.
     while True:
         # Set up Jira functions
-        issuesGuage.set(jiraFunctions.Issues.totalIssues())
+        issuesGuage.set(jiraFunctions.Issues.search())
         # Wait 
         process_request(60)

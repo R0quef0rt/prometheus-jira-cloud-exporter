@@ -9,13 +9,13 @@ import time
 class Issues:
 
     @staticmethod
-    def totalIssues():
+    def search():
 
         try:
             jql = ''
             block_size = 100
             block_num = 0
-            totalIssues = 0
+            count = 0
             result = jira.search_issues(jql, startAt=block_num*block_size, maxResults=block_size,
                                         fields="project, summary, components, labels, status, issuetype, resolution, created, resolutiondate, reporter, assignee, status")
 
@@ -40,7 +40,7 @@ class Issues:
             while bool(result):
 
                 for issue in result:
-                    totalIssues += 1
+                    count += 1
                     projects.append(str(issue.fields.project))
                     assignees.append(str(issue.fields.assignee))
                     issueTypes.append(str(issue.fields.issuetype))
@@ -75,7 +75,7 @@ class Issues:
 
             jira.close()
 
-Issues.totalIssues()
+Issues.search()
 print(projects)
 print(assignees)
 print(components)
