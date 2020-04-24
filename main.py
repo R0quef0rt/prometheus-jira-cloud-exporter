@@ -23,7 +23,7 @@ if __name__ == '__main__':
         issuesGauge = Gauge('total_jira_issues', 'Jira issues', ['project', 'assignee', 'issueType', 'status', 'resolution', 'reporter', 'component', 'label'])
         for promLabel in jiraFunctions.promLabels:
             print(promLabel)
-            issuesGauge.set(2.0)
+            # issuesGauge.set(2.0)
             issuesGauge.labels(promLabel).inc()
         # Wait 
         process_request(60)

@@ -39,10 +39,14 @@ class Issues:
                     if components:
                         for component in components:
                             promLabel += f", component='{component}'"
+                    else:
+                        promLabel += f", component='None'"
 
                     if labels:
                         for label in labels:
                             promLabel += f", label='{label}'"
+                    else:
+                        promLabel += f", label='None'"
                 
                     promLabels.append(promLabel)
 
