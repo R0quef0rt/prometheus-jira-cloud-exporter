@@ -15,13 +15,15 @@ def process_request(t):
     time.sleep(t)
 
 if __name__ == '__main__':
-    # Set up Jira variables
-    issuesGuage = Gauge('total_jira_issues', 'Jira issues')
     # Start up the server to expose the metrics.
     start_http_server(8000)
     # Generate some requests.
     while True:
         # Set up Jira functions
-        issuesGuage.set(jiraFunctions.Issues.search())
+        issuesGauge = Gauge('total_jira_issues', 'Jira issues', ['project', 'assignee', 'issueType', 'status', 'resolution', 'reporter', 'component', 'label'])
+        for promLabel in jiraFunctions.promLabels:
+            print(promLabel)
+            issuesGauge.set(2.0)
+            issuesGauge.labels(promLabel).inc()
         # Wait 
         process_request(60)

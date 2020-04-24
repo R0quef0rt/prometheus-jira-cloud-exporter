@@ -3,7 +3,6 @@ from variables import *
 from secrets import *
 import globals
 from globals import *
-import json
 import time
 
 class Issues:
