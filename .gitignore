@@ -130,3 +130,6 @@ dmypy.json
 
 # Hide secrets file
 secrets.py
+
+# Hide coderunner file
+tempCodeRunnerFile.py
