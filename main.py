@@ -1,7 +1,7 @@
 from prometheus_client import start_http_server, Summary, Gauge
 import random
 import time
-import issues
+import jiraFunctions
 import globals
 from globals import *
 
@@ -22,6 +22,6 @@ if __name__ == '__main__':
     # Generate some requests.
     while True:
         # Set up Jira functions
-        issuesGuage.set(issues.totalIssues())
+        issuesGuage.set(jiraFunctions.Issues.totalIssues())
         # Wait 
         process_request(60)
