@@ -1,4 +1,4 @@
-from prometheus_client import start_http_server, Summary, Gauge
+from prometheus_client import start_http_server, Summary, Gauge, REGISTRY
 import random
 import time
 import jiraFunctions
@@ -17,13 +17,16 @@ def process_request(t):
 if __name__ == '__main__':
     # Start up the server to expose the metrics.
     start_http_server(8000)
+    REGISTRY.register(jiraFunctions.IssueCollector())
     # Generate some requests.
     while True:
         # Set up Jira functions
-        issuesGauge = Gauge('total_jira_issues', 'Jira issues', ['project', 'assignee', 'issueType', 'status', 'resolution', 'reporter', 'component', 'label'])
-        for promLabel in jiraFunctions.promLabels:
-            print(promLabel)
+        # issuesGauge = Gauge('total_jira_issues', 'Jira issues', ['project', 'assignee', 'issueType', 'status', 'resolution', 'reporter', 'component', 'label'])
+        # issuesGauge = Gauge('total_jira_issues', 'Jira issues', ['project', 'assignee', 'label'])
+        # for promLabel in jiraFunctions.promLabels:
+        #     print(promLabel)
             # issuesGauge.set(2.0)
-            issuesGauge.labels(promLabel).inc()
+            # issuesGauge.labels(promLabel).set(2.0)
+            # issuesGauge.labels(project = '', assignee='', issueType='', status='', resolution='', reporter='', component='', label='').set(2.0)
         # Wait 
         process_request(60)
