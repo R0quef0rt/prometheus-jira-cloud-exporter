@@ -17,7 +17,6 @@ class IssueCollector:
             jql = ''
             block_size = 100
             block_num = 0
-            count = 0
             global promLabels
             promLabels = []
             result = jira.search_issues(jql, startAt=block_num*block_size, maxResults=block_size,
@@ -26,7 +25,6 @@ class IssueCollector:
             while bool(result):
 
                 for issue in result:
-                    count += 1
                     project = str(issue.fields.project)
                     assignee = str(issue.fields.assignee)
                     issueType = str(issue.fields.assignee)
@@ -36,7 +34,6 @@ class IssueCollector:
                     components = issue.fields.components
                     labels = issue.fields.labels
                     
-                    # Construct the PromQL query
                     promLabel = [f'{project}', f'{assignee}', f'{issueType}', f'{status}', f'{resolution}', f'{reporter}']
                     
                     if components:
@@ -59,21 +56,23 @@ class IssueCollector:
                                         fields="project, summary, components, labels, status, issuetype, resolution, created, resolutiondate, reporter, assignee, status")
             jira.close()
 
-            return promLabels
-
         except (AttributeError):
 
             jira.close()
 
+# IssueCollector.search()
+
     def collect(self):
+
         issuesGauge = GaugeMetricFamily('jira_issues', 'Jira issues', labels=['project', 'assignee', 'issueType', 'status', 'resolution', 'reporter', 'component', 'label'])
-        # print(promLabels)
+
         for labels in promLabels:
             issuesGauge.add_metric(labels, 20)
         yield issuesGauge
 
 
 if __name__ == '__main__':
+
     start_http_server(8000)
     IssueCollector.search()
     REGISTRY.register(IssueCollector())
