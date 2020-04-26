@@ -1,11 +1,16 @@
 from prometheus_client.core import GaugeMetricFamily, REGISTRY, CounterMetricFamily
 from prometheus_client import start_http_server
-from jira import JIRA
-from variables import *
-from secrets import *
-import globals
-from globals import *
+from jira import JIRA, JIRAError
+from config import *
 import time
+
+jira = JIRA(
+    basic_auth=(user, apikey), 
+    options={
+        'server': instance
+    }
+)
+
 
 class IssueCollector:
 
@@ -14,16 +19,19 @@ class IssueCollector:
 
         try:
             
+            # Set up the JQL query
             block_size = 100
             block_num = 0
-            global promLabels
             promLabels = []
             result = jira.search_issues(jql, startAt=block_num*block_size, maxResults=block_size,
                                         fields="project, summary, components, labels, status, issuetype, resolution, created, resolutiondate, reporter, assignee, status")
 
+            # Loop over the JQL results
             while bool(result):
 
                 for issue in result:
+
+                    # Assign Jira attributes to variables
                     project = str(issue.fields.project)
                     assignee = str(issue.fields.assignee)
                     issueType = str(issue.fields.issuetype)
@@ -33,6 +41,7 @@ class IssueCollector:
                     components = issue.fields.components
                     labels = issue.fields.labels
                     
+                    # Construct the list of labels from attributes
                     promLabel = [f'{project}', f'{assignee}', f'{issueType}', f'{status}', f'{resolution}', f'{reporter}']
                     
                     if components:
@@ -49,12 +58,14 @@ class IssueCollector:
                 
                     promLabels.append(promLabel)
 
+                # Increment the results via pagination
                 block_num += 1
-                time.sleep(5)
+                time.sleep(2)
                 result = jira.search_issues(jql, startAt=block_num*block_size, maxResults=block_size,
                                         fields="project, summary, components, labels, status, issuetype, resolution, created, resolutiondate, reporter, assignee, status")
             jira.close()
             
+            # Convert nested lists into a list of tuples, so that we may hash and count duplicates
             global promOutput
             promOutput = {}
 
@@ -65,12 +76,13 @@ class IssueCollector:
 
             return promOutput
 
-        except (AttributeError):
+        except (JIRAError, AttributeError):
 
             jira.close()
 
     def collect(self):
-
+        
+        # Set up the Issues Prometheus gauge
         issuesGauge = GaugeMetricFamily('jira_issues', 'Jira issues', labels=['project', 'assignee', 'issueType', 'status', 'resolution', 'reporter', 'component', 'label'])
 
         for labels, value in promOutput.items():
@@ -80,8 +92,9 @@ class IssueCollector:
 
 if __name__ == '__main__':
 
+    # Start the webserver, search Jira, and register the issue collector
     start_http_server(8000)
-    IssueCollector.search(jql)
+    IssueCollector.search(str(jql))
     REGISTRY.register(IssueCollector())
     while True:
-        time.sleep(1)
+        time.sleep(int(interval))
