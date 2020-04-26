@@ -57,24 +57,34 @@ class IssueCollector:
                 result = jira.search_issues(jql, startAt=block_num*block_size, maxResults=block_size,
                                         fields="project, summary, components, labels, status, issuetype, resolution, created, resolutiondate, reporter, assignee, status")
             jira.close()
+            
+            global promOutput
+            promOutput = {}
+
+            for l in promLabels:
+                promOutput.setdefault(tuple(l), list()).append(1)
+            for a, b in promOutput.items():
+                promOutput[a] = sum(b)
+
+            return promOutput
 
         except (AttributeError):
 
             jira.close()
 
-#     def collect(self):
+    def collect(self):
 
-#         issuesGauge = GaugeMetricFamily('jira_issues', 'Jira issues', labels=['project', 'assignee', 'issueType', 'status', 'resolution', 'reporter', 'component', 'label'])
+        issuesGauge = GaugeMetricFamily('jira_issues', 'Jira issues', labels=['project', 'assignee', 'issueType', 'status', 'resolution', 'reporter', 'component', 'label'])
 
-#         for labels in promLabels:
-#             issuesGauge.add_metric(labels, 20)
-#         yield issuesGauge
+        for labels, value in promOutput.items():
+            issuesGauge.add_metric(labels, value)
+        yield issuesGauge
 
 
-# if __name__ == '__main__':
+if __name__ == '__main__':
 
-#     start_http_server(8000)
-#     IssueCollector.search()
-#     REGISTRY.register(IssueCollector())
-#     while True:
-#         time.sleep(1)
+    start_http_server(8000)
+    IssueCollector.search()
+    REGISTRY.register(IssueCollector())
+    while True:
+        time.sleep(1)
