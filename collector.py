@@ -6,6 +6,8 @@ from secrets import *
 import globals
 from globals import *
 import time
+import pprint
+from collections import Counter
 
 class IssueCollector:
 
@@ -27,7 +29,7 @@ class IssueCollector:
                 for issue in result:
                     project = str(issue.fields.project)
                     assignee = str(issue.fields.assignee)
-                    issueType = str(issue.fields.assignee)
+                    issueType = str(issue.fields.issuetype)
                     status = str(issue.fields.status)
                     resolution = str(issue.fields.resolution)
                     reporter = str(issue.fields.reporter)
@@ -60,21 +62,19 @@ class IssueCollector:
 
             jira.close()
 
-# IssueCollector.search()
+#     def collect(self):
 
-    def collect(self):
+#         issuesGauge = GaugeMetricFamily('jira_issues', 'Jira issues', labels=['project', 'assignee', 'issueType', 'status', 'resolution', 'reporter', 'component', 'label'])
 
-        issuesGauge = GaugeMetricFamily('jira_issues', 'Jira issues', labels=['project', 'assignee', 'issueType', 'status', 'resolution', 'reporter', 'component', 'label'])
-
-        for labels in promLabels:
-            issuesGauge.add_metric(labels, 20)
-        yield issuesGauge
+#         for labels in promLabels:
+#             issuesGauge.add_metric(labels, 20)
+#         yield issuesGauge
 
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
 
-    start_http_server(8000)
-    IssueCollector.search()
-    REGISTRY.register(IssueCollector())
-    while True:
-        time.sleep(1)
+#     start_http_server(8000)
+#     IssueCollector.search()
+#     REGISTRY.register(IssueCollector())
+#     while True:
+#         time.sleep(1)
