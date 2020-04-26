@@ -21,17 +21,21 @@ jira_issues{assignee="None",component="None",issueType="Task",label="None",proje
 ---
 Using this app is simple:
 
-1. Download this project, and extract it to a folder on your computer
+1. Download the project, and extract it to a folder on your computer
 2. In this folder, create a "config.py" file containing the following contents:
 ```
 # The URL of your Jira Cloud instance
 instance = 'https://myinstance.atlassian.net'
+
 # The username of the user authentication with Jira's API
 user = 'ryanjbrooks11@gmail.com'
+
 # The API key associated with your user
 apikey = 'nv7w9fpm2AHUBehGytrrDBD9'
+
 # The JQL query you want to use to search Jira. Leave blank to search all issues.
 jql = ''
+
 # The interval (in seconds) to search Jira. Do not set this too low, or there is a chance
 # of overloading your instance.
 interval = '900'
