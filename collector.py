@@ -77,8 +77,8 @@ class IssueCollector:
             jira.close()
 
             # Convert nested lists into a list of tuples, so that we may hash and count duplicates
-            for l in prom_labels:
-                self.prom_output.setdefault(tuple(l), list()).append(1)
+            for li in prom_labels:
+                self.prom_output.setdefault(tuple(li), list()).append(1)
             for k, v in self.prom_output.items():
                 self.prom_output[k] = sum(v)
             return self.prom_output
