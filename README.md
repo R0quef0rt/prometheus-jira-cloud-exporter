@@ -28,10 +28,10 @@ Using this app is simple:
 instance = 'https://myinstance.atlassian.net'
 
 # The username of the user authentication with Jira's API
-user = 'ryanjbrooks11@gmail.com'
+user = 'john.doe@gmail.com'
 
 # The API key associated with your user
-apikey = 'nv7w9fpm2AHUBehGytrrDBD9'
+apikey = 'XXXXXXXXXXXXXXXXXX'
 
 # The JQL query you want to use to search Jira. Leave blank to search all issues.
 jql = ''
