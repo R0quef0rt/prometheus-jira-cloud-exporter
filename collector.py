@@ -6,17 +6,14 @@ from secrets import *
 import globals
 from globals import *
 import time
-import pprint
-from collections import Counter
 
 class IssueCollector:
 
     @staticmethod
-    def search():
+    def search(jql):
 
         try:
             
-            jql = ''
             block_size = 100
             block_num = 0
             global promLabels
@@ -63,8 +60,8 @@ class IssueCollector:
 
             for l in promLabels:
                 promOutput.setdefault(tuple(l), list()).append(1)
-            for a, b in promOutput.items():
-                promOutput[a] = sum(b)
+            for k, v in promOutput.items():
+                promOutput[k] = sum(v)
 
             return promOutput
 
@@ -84,7 +81,7 @@ class IssueCollector:
 if __name__ == '__main__':
 
     start_http_server(8000)
-    IssueCollector.search()
+    IssueCollector.search(jql)
     REGISTRY.register(IssueCollector())
     while True:
         time.sleep(1)
