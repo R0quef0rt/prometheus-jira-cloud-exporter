@@ -13,20 +13,27 @@ jira = JIRA(
 
 
 class IssueCollector:
-
+    
+    block_num = 0
     promOutput = {}
 
     @classmethod
     def search(self, jql):
 
+        # Search Jira API
+        block_size = 100
+        result = jira.search_issues(jql, startAt=self.block_num*block_size, maxResults=block_size,
+                                    fields="project, summary, components, labels, status, issuetype, resolution, created, resolutiondate, reporter, assignee, status") 
+
+        return result       
+
+    @classmethod
+    def construct(self, jql):
+
         try:
             
-            # Set up the JQL query
-            block_size = 100
-            block_num = 0
             promLabels = []
-            result = jira.search_issues(jql, startAt=block_num*block_size, maxResults=block_size,
-                                        fields="project, summary, components, labels, status, issuetype, resolution, created, resolutiondate, reporter, assignee, status")
+            result = IssueCollector.search(jql)
 
             # Loop over the JQL results
             while bool(result):
@@ -61,10 +68,10 @@ class IssueCollector:
                     promLabels.append(promLabel)
 
                 # Increment the results via pagination
-                block_num += 1
+                self.block_num += 1
                 time.sleep(2)
-                result = jira.search_issues(jql, startAt=block_num*block_size, maxResults=block_size,
-                                        fields="project, summary, components, labels, status, issuetype, resolution, created, resolutiondate, reporter, assignee, status")
+                result = IssueCollector.search(jql)
+
             jira.close()
             
             # Convert nested lists into a list of tuples, so that we may hash and count duplicates
@@ -93,7 +100,7 @@ if __name__ == '__main__':
 
     # Start the webserver, search Jira, and register the issue collector
     start_http_server(8000)
-    IssueCollector.search(str(jql))
+    IssueCollector.construct(str(jql))
     REGISTRY.register(IssueCollector())
     while True:
         time.sleep(int(interval))
