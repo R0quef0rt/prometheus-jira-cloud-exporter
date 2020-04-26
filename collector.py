@@ -7,7 +7,7 @@ import globals
 from globals import *
 import time
 
-class Issue:
+class IssueCollector:
 
     @staticmethod
     def search():
@@ -65,22 +65,17 @@ class Issue:
 
             jira.close()
 
-
-class IssueCollector(object):
-    def __init__(self):
-        pass
-
     def collect(self):
         issuesGauge = GaugeMetricFamily('jira_issues', 'Jira issues', labels=['project', 'assignee', 'issueType', 'status', 'resolution', 'reporter', 'component', 'label'])
-        Issue.search()
+        # print(promLabels)
         for labels in promLabels:
-            print(labels)
             issuesGauge.add_metric(labels, 20)
-            yield issuesGauge
+        yield issuesGauge
 
 
 if __name__ == '__main__':
     start_http_server(8000)
+    IssueCollector.search()
     REGISTRY.register(IssueCollector())
     while True:
         time.sleep(1)
