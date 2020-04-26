@@ -17,6 +17,8 @@ jira_issues{assignee="John Doe",component="None",issueType="Task",label="None",p
 jira_issues{assignee="None",component="None",issueType="Task",label="None",project="GAR",reporter="John Doe",resolution="None",status="To Do"} 1.0
 ```
 
+I've [created a Docker image](https://hub.docker.com/repository/docker/roquefort/prometheus-jira-cloud-exporter) you can use to quickly get started.
+
 ## How to use
 ---
 Using this app is simple:
