@@ -10,7 +10,7 @@ jira = JIRA(basic_auth=(config.user, config.apikey), options={"server": config.i
 class IssueCollector:
 
     block_num = 0
-    promOutput = {}
+    prom_output = {}
 
     @classmethod
     def search(self, jql):
@@ -31,7 +31,7 @@ class IssueCollector:
 
         try:
 
-            promLabels = []
+            prom_labels = []
             result = IssueCollector.search(config.jql)
 
             # Loop over the JQL results
@@ -42,7 +42,7 @@ class IssueCollector:
                     # Assign Jira attributes to variables
                     project = str(issue.fields.project)
                     assignee = str(issue.fields.assignee)
-                    issueType = str(issue.fields.issuetype)
+                    issue_type = str(issue.fields.issuetype)
                     status = str(issue.fields.status)
                     resolution = str(issue.fields.resolution)
                     reporter = str(issue.fields.reporter)
@@ -50,10 +50,10 @@ class IssueCollector:
                     labels = issue.fields.labels
 
                     # Construct the list of labels from attributes
-                    promLabel = [
+                    prom_label = [
                         project,
                         assignee,
-                        issueType,
+                        issue_type,
                         status,
                         resolution,
                         reporter,
@@ -61,15 +61,15 @@ class IssueCollector:
 
                     if components:
                         for component in components:
-                            promLabel.append(str(component))
+                            prom_label.append(str(component))
                     else:
-                        promLabel.append("None")
+                        prom_label.append("None")
                     if labels:
                         for label in labels:
-                            promLabel.append(str(label))
+                            prom_label.append(str(label))
                     else:
-                        promLabel.append("None")
-                    promLabels.append(promLabel)
+                        prom_label.append("None")
+                    prom_labels.append(prom_label)
                 # Increment the results via pagination
                 self.block_num += 1
                 time.sleep(2)
@@ -77,11 +77,11 @@ class IssueCollector:
             jira.close()
 
             # Convert nested lists into a list of tuples, so that we may hash and count duplicates
-            for l in promLabels:
-                self.promOutput.setdefault(tuple(l), list()).append(1)
-            for k, v in self.promOutput.items():
-                self.promOutput[k] = sum(v)
-            return self.promOutput
+            for l in prom_labels:
+                self.prom_output.setdefault(tuple(l), list()).append(1)
+            for k, v in self.prom_output.items():
+                self.prom_output[k] = sum(v)
+            return self.prom_output
         except (JIRAError, AttributeError):
 
             jira.close()
@@ -89,13 +89,13 @@ class IssueCollector:
     def collect(self):
 
         # Set up the Issues Prometheus gauge
-        issuesGauge = GaugeMetricFamily(
+        issues_gauge = GaugeMetricFamily(
             "jira_issues",
             "Jira issues",
             labels=[
                 "project",
                 "assignee",
-                "issueType",
+                "issue_type",
                 "status",
                 "resolution",
                 "reporter",
@@ -104,9 +104,9 @@ class IssueCollector:
             ],
         )
 
-        for labels, value in self.promOutput.items():
-            issuesGauge.add_metric(labels, value)
-        yield issuesGauge
+        for labels, value in self.prom_output.items():
+            issues_gauge.add_metric(labels, value)
+        yield issues_gauge
 
 
 if __name__ == "__main__":
