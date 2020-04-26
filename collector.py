@@ -14,8 +14,10 @@ jira = JIRA(
 
 class IssueCollector:
 
-    @staticmethod
-    def search(jql):
+    promOutput = {}
+
+    @classmethod
+    def search(self, jql):
 
         try:
             
@@ -66,15 +68,12 @@ class IssueCollector:
             jira.close()
             
             # Convert nested lists into a list of tuples, so that we may hash and count duplicates
-            global promOutput
-            promOutput = {}
-
             for l in promLabels:
-                promOutput.setdefault(tuple(l), list()).append(1)
-            for k, v in promOutput.items():
-                promOutput[k] = sum(v)
-
-            return promOutput
+                self.promOutput.setdefault(tuple(l), list()).append(1)
+            for k, v in self.promOutput.items():
+                self.promOutput[k] = sum(v)
+            
+            return self.promOutput
 
         except (JIRAError, AttributeError):
 
@@ -85,7 +84,7 @@ class IssueCollector:
         # Set up the Issues Prometheus gauge
         issuesGauge = GaugeMetricFamily('jira_issues', 'Jira issues', labels=['project', 'assignee', 'issueType', 'status', 'resolution', 'reporter', 'component', 'label'])
 
-        for labels, value in promOutput.items():
+        for labels, value in self.promOutput.items():
             issuesGauge.add_metric(labels, value)
         yield issuesGauge
 
