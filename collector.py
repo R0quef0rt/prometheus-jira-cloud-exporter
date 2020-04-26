@@ -42,19 +42,19 @@ class IssueCollector:
                     labels = issue.fields.labels
                     
                     # Construct the list of labels from attributes
-                    promLabel = [f'{project}', f'{assignee}', f'{issueType}', f'{status}', f'{resolution}', f'{reporter}']
+                    promLabel = [project, assignee, issueType, status, resolution, reporter]
                     
                     if components:
                         for component in components:
-                            promLabel.append(f'{component}')
+                            promLabel.append(str(component))
                     else:
-                        promLabel.append(f'None')
+                        promLabel.append('None')
 
                     if labels:
                         for label in labels:
-                            promLabel.append(f'{label}')
+                            promLabel.append(str(label))
                     else:
-                        promLabel.append(f'None')
+                        promLabel.append('None')
                 
                     promLabels.append(promLabel)
 
