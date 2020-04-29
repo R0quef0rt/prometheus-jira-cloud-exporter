@@ -21,7 +21,9 @@ RUN make altinstall
 
 RUN python3.8 -m pip install prometheus_client jira
 
-COPY collector.py /entrypoint.py
+COPY ./classes /classes
+
+COPY main.py /entrypoint.py
 
 CMD ["/entrypoint.py"]
 ENTRYPOINT ["python3.8"]
