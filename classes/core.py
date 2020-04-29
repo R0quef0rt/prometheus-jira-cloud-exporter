@@ -86,6 +86,7 @@ class IssueCollector:
 
             jira.close()
 
+    @classmethod
     def collect(self):
 
         # Set up the Issues Prometheus gauge
