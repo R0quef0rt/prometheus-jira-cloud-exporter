@@ -86,6 +86,7 @@ class IssueCollector:
 
             jira.close()
 
+    @classmethod
     def collect(self):
 
         # Set up the Issues Prometheus gauge
@@ -107,13 +108,3 @@ class IssueCollector:
         for labels, value in self.prom_output.items():
             issues_gauge.add_metric(labels, value)
         yield issues_gauge
-
-
-if __name__ == "__main__":
-
-    # Start the webserver, search Jira, and register the issue collector
-    start_http_server(8000)
-    IssueCollector.construct(str(config.jql))
-    REGISTRY.register(IssueCollector())
-    while True:
-        time.sleep(int(config.interval))
